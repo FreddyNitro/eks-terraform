@@ -1,36 +1,29 @@
-# AWS Region
 variable "aws_region" {
-  description = "The AWS region to create resources in."
+  description = "AWS region to deploy resources"
   default     = "us-east-1"
 }
 
-# EKS Cluster Name
 variable "cluster_name" {
-  description = "Name of the EKS Cluster"
+  description = "EKS cluster name"
   default     = "my-eks-cluster"
 }
 
-# EKS Node Group Size
 variable "node_group_size" {
-  description = "Number of worker nodes in the EKS node group"
-  default     = 3
+  description = "Number of worker nodes"
+  default     = 2
 }
 
-# VPC CIDR Block
 variable "vpc_cidr" {
-  description = "CIDR block for the VPC"
+  description = "VPC CIDR block"
   default     = "10.0.0.0/16"
 }
 
-# Subnets CIDR Blocks
-variable "public_subnet_cidrs" {
-  description = "List of public subnet CIDR blocks"
-  type        = list(string)
+variable "public_subnets" {
+  description = "Public subnet CIDR blocks"
   default     = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
 }
 
-variable "private_subnet_cidrs" {
-  description = "List of private subnet CIDR blocks"
-  type        = list(string)
+variable "private_subnets" {
+  description = "Private subnet CIDR blocks"
   default     = ["10.0.4.0/24", "10.0.5.0/24", "10.0.6.0/24"]
 }
