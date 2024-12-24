@@ -1,25 +1,13 @@
-variable "aws_region" {
-  description = "AWS region for the EKS cluster"
+variable "region" {
+  description = "AWS region"
   type        = string
-  default     = "us-east-1"
+  default     = "us-west-2"
 }
 
 variable "cluster_name" {
   description = "Name of the EKS cluster"
   type        = string
-  default     = "freddy-eks-cluster"
-}
-
-variable "node_instance_type" {
-  description = "EC2 instance type for the worker nodes"
-  type        = string
-  default     = "t2.micro"
-}
-
-variable "vpc_cidr" {
-  description = "CIDR block for the VPC"
-  type        = string
-  default     = "10.0.0.0/16"
+  default     = "my-eks-cluster"
 }
 
 variable "public_subnets" {
@@ -34,19 +22,31 @@ variable "private_subnets" {
   default     = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
 }
 
+variable "vpc_cidr" {
+  description = "CIDR block for the VPC"
+  type        = string
+  default     = "10.0.0.0/16"
+}
+
+variable "instance_type" {
+  description = "EC2 instance type for the node group"
+  type        = string
+  default     = "t2.micro"
+}
+
 variable "desired_capacity" {
   description = "Desired number of worker nodes"
   type        = number
   default     = 2
 }
 
-variable "max_size" {
+variable "max_capacity" {
   description = "Maximum number of worker nodes"
   type        = number
   default     = 3
 }
 
-variable "min_size" {
+variable "min_capacity" {
   description = "Minimum number of worker nodes"
   type        = number
   default     = 1
