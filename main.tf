@@ -110,16 +110,20 @@ resource "aws_iam_role_policy_attachment" "eks_node_group_policies" {
 resource "aws_eks_node_group" "node_group" {
   cluster_name    = aws_eks_cluster.eks_cluster.name
   node_role_arn   = aws_iam_role.eks_node_group_role.arn
-  subnet_ids      = aws_subnet.private_subnets[*].id
+  subnet_ids      = values(aws_subnet.private_subnets)[*].id
+
   scaling_config {
     desired_size = var.desired_capacity
     max_size     = var.max_capacity
     min_size     = var.min_capacity
   }
+
   instance_types = [var.instance_type]
+
   tags = {
     Name = "${var.cluster_name}-node-group"
   }
 }
+
 
 
