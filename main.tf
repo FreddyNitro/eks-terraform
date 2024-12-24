@@ -5,11 +5,10 @@ terraform {
   }
 }
 
-module "vpc" {
-  source  = "terraform-aws-modules/vpc/aws"
-  version = "3.19.0"
-
-  name = "eks-vpc"
+resource "aws_vpc" "eks_vpc" {
+  cidr_block = var.vpc_cidr
+  enable_dns_support = true
+  enable_dns_hostnames = true
 
   cidr = var.vpc_cidr
 
