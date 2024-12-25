@@ -73,8 +73,8 @@ resource "aws_eks_cluster" "eks_cluster" {
 
 resource "aws_subnet" "public_subnets" {
   for_each                 = toset(var.availability_zones)
-  vpc_id                   = aws_vpc.main.id
-  cidr_block               = cidrsubnet(aws_vpc.main.cidr_block, 8, index(var.availability_zones, each.key))
+  vpc_id                   = aws_vpc.eks_vpc.id
+  cidr_block               = cidrsubnet(aws_vpc.eks_vpc.cidr_block, 8, index(var.availability_zones, each.key))
   availability_zone        = each.key
   map_public_ip_on_launch  = true
   tags                     = { Name = "${var.cluster_name}-public-${each.key}" }
@@ -82,8 +82,8 @@ resource "aws_subnet" "public_subnets" {
 
 resource "aws_subnet" "private_subnets" {
   for_each          = toset(var.availability_zones)
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = cidrsubnet(aws_vpc.main.cidr_block, 8, length(var.availability_zones) + index(var.availability_zones, each.key))
+  vpc_id            = aws_vpc.eks_vpc.id
+  cidr_block        = cidrsubnet(aws_vpc.eks_vpc.cidr_block, 8, length(var.availability_zones) + index(var.availability_zones, each.key))
   availability_zone = each.key
   tags              = { Name = "${var.cluster_name}-private-${each.key}" }
 }
