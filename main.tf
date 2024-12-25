@@ -63,9 +63,7 @@ resource "aws_eks_cluster" "eks_cluster" {
       [for subnet in aws_subnet.private_subnets : subnet.id]  # Access private subnet IDs
     )
   }
-    endpoint_public_access = true
-    endpoint_private_access = false
-    
+
   version = "1.26"
 
   tags = {
@@ -109,7 +107,7 @@ resource "aws_iam_role_policy_attachment" "node_group_policies" {
     "AmazonEKS_CNI_Policy"
   ])
 
-  role       = aws_iam_role.node_group_role.name
+  role       = aws_iam_role.eks_node_group_role.name
   policy_arn = "arn:aws:iam::aws:policy/${each.key}"
 }
 
