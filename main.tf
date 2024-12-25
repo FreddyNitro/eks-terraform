@@ -63,7 +63,9 @@ resource "aws_eks_cluster" "eks_cluster" {
       [for subnet in aws_subnet.private_subnets : subnet.id]  # Access private subnet IDs
     )
   }
-
+    endpoint_public_access = true
+    endpoint_private_access = false
+    
   version = "1.26"
 
   tags = {
@@ -100,10 +102,38 @@ resource "aws_iam_role" "eks_node_group_role" {
   })
 }
 
-resource "aws_iam_role_policy_attachment" "eks_node_group_policies" {
-  role       = aws_iam_role.eks_node_group_role.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
+resource "aws_iam_role_policy_attachment" "node_group_policies" {
+  for_each = toset([
+    "AmazonEKSWorkerNodePolicy",
+    "AmazonEC2ContainerRegistryReadOnly",
+    "AmazonEKS_CNI_Policy"
+  ])
+
+  role       = aws_iam_role.node_group_role.name
+  policy_arn = "arn:aws:iam::aws:policy/${each.key}"
 }
+
+resource "aws_security_group" "worker_group_sg" {
+  name_prefix = "eks-worker-sg"
+  vpc_id      = aws_vpc.eks_vpc.id
+
+  ingress {
+    description = "Allow nodes to communicate with each other"
+    from_port   = 0
+    to_port     = 65535
+    protocol    = "-1"
+    cidr_blocks = [aws_vpc.eks_vpc.cidr_block]
+  }
+
+  egress {
+    description = "Allow all outbound traffic"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
 
 resource "aws_eks_node_group" "node_group" {
   cluster_name    = aws_eks_cluster.eks_cluster.name
