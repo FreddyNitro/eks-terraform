@@ -51,3 +51,9 @@ variable "min_capacity" {
   type        = number
   default     = 1
 }
+
+variable "availability_zones" {
+  description = "List of availability zones to use for the subnets"
+  type        = list(string)
+  default     = ["us-east-1a", "us-east-2b"] 
+  }
