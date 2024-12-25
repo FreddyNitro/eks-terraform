@@ -59,8 +59,8 @@ resource "aws_eks_cluster" "eks_cluster" {
 
   vpc_config {
     subnet_ids = concat(
-      values(aws_subnet.public_subnets)[*].id,
-      values(aws_subnet.private_subnets)[*].id
+      [for subnet in aws_subnet.public_subnets : subnet.id],   # Access public subnet IDs
+      [for subnet in aws_subnet.private_subnets : subnet.id]  # Access private subnet IDs
     )
   }
 
@@ -69,7 +69,7 @@ resource "aws_eks_cluster" "eks_cluster" {
   tags = {
     Name = var.cluster_name
   }
-}      
+}
 
 resource "aws_subnet" "public_subnets" {
   for_each                 = toset(var.availability_zones)
