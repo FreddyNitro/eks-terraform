@@ -39,27 +39,39 @@ resource "aws_iam_role_policy_attachment" "eks_node_group" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
 }
 
-module "eks" {
-  source          = "terraform-aws-modules/eks/aws"
-  version         = "~> 19.0" # Adjust based on compatibility
-  cluster_name    = var.eks_cluster_name
-  cluster_version = "1.27"
+resource "aws_eks_cluster" "eks" {
+  name     = var.eks_cluster_name
+  role_arn = aws_iam_role.eks_cluster.arn
 
-  vpc_id  = aws_vpc.main.id
-  subnets = aws_subnet.private[*].id
-
-  node_group_defaults = {
-    instance_type = var.instance_type
+  vpc_config {
+    subnet_ids = aws_subnet.private[*].id
   }
 
-  managed_node_groups = {
-    eks_nodes = {
-      min_size     = 1
-      max_size     = 3
-      desired_size = 2
-      key_name     = var.key_name
-    }
-  }
+  version = "1.27"
 }
+
+resource "aws_eks_node_group" "eks_nodes" {
+  cluster_name    = aws_eks_cluster.eks.name
+  node_group_name = "eks-node-group"
+  node_role_arn   = aws_iam_role.eks_node_group.arn
+  subnet_ids      = aws_subnet.private[*].id
+
+  scaling_config {
+    desired_size = 2
+    max_size     = 3
+    min_size     = 1
+  }
+
+  instance_types = [var.instance_type]
+  ami_type       = "AL2_x86_64" # Amazon Linux 2 EKS optimized AMI
+  disk_size      = 20
+
+  remote_access {
+    ec2_ssh_key = var.key_name
+  }
+
+  depends_on = [aws_eks_cluster.eks]
+}
+
 
 
