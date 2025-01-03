@@ -41,22 +41,25 @@ resource "aws_iam_role_policy_attachment" "eks_node_group" {
 
 module "eks" {
   source          = "terraform-aws-modules/eks/aws"
+  version         = "~> 19.0" # Adjust based on compatibility
   cluster_name    = var.eks_cluster_name
-  cluster_version = "1.27" # Use the desired Kubernetes version
+  cluster_version = "1.27"
 
-  subnets         = aws_subnet.private[*].id
-  vpc_id          = aws_vpc.main.id
+  vpc_id  = aws_vpc.main.id
+  subnets = aws_subnet.private[*].id
 
-  node_groups = {
-    ng1 = {
-      desired_capacity = 2
-      max_capacity     = 3
-      min_capacity     = 1
+  node_group_defaults = {
+    instance_type = var.instance_type
+  }
 
-      instance_type    = var.instance_type
-      key_name         = var.key_name
-      iam_role_arn     = aws_iam_role.eks_node_group.arn
+  managed_node_groups = {
+    eks_nodes = {
+      min_size     = 1
+      max_size     = 3
+      desired_size = 2
+      key_name     = var.key_name
     }
   }
 }
+
 
