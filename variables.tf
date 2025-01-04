@@ -25,7 +25,7 @@ variable "instance_type" {
 variable "key_name" {
   description = "Key pair name for SSH access"
   type        = string
-  default     = "devopskey.pem" # Replace with your key pair
+  default     = "devopskey" # Replace with your key pair
 }
 
 variable "eks_cluster_name" {
