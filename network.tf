@@ -45,9 +45,10 @@ resource "aws_route_table_association" "public" {
 }
 
 resource "aws_eip" "nat" {
-  count = length(var.availability_zones)
-  vpc   = true
+  count  = length(var.availability_zones)
+  domain = "vpc"
 }
+
 
 resource "aws_nat_gateway" "main" {
   count         = length(var.availability_zones)
