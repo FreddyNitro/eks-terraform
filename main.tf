@@ -26,17 +26,27 @@ resource "aws_iam_role" "eks_node_group" {
     Version = "2012-10-17",
     Statement = [
       {
-        Action    = "sts:AssumeRole",
         Effect    = "Allow",
         Principal = { Service = "ec2.amazonaws.com" },
+        Action    = "sts:AssumeRole"
       },
     ],
   })
 }
 
-resource "aws_iam_role_policy_attachment" "eks_node_group" {
+resource "aws_iam_role_policy_attachment" "eks_node_group_worker_policy" {
   role       = aws_iam_role.eks_node_group.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
+}
+
+resource "aws_iam_role_policy_attachment" "eks_node_group_cni_policy" {
+  role       = aws_iam_role.eks_node_group.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
+}
+
+resource "aws_iam_role_policy_attachment" "eks_node_group_registry_policy" {
+  role       = aws_iam_role.eks_node_group.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
 }
 
 resource "aws_eks_cluster" "eks" {
@@ -71,6 +81,34 @@ resource "aws_eks_node_group" "eks_nodes" {
   }
 
   depends_on = [aws_eks_cluster.eks]
+}
+resource "aws_security_group" "eks_node_group" {
+  vpc_id = aws_vpc.main.id
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 10250
+    to_port     = 10250
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "eks-node-group-sg"
+  }
 }
 
 
